@@ -1,5 +1,5 @@
 name: blazorApp1
-baseVersion: 0.1
+baseVersion: 1.2
 NuGetRepositories:
 - AAM-nuget-public
 git:
