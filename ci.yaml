@@ -1,2 +1,8 @@
 name: blazorApp1
 baseVersion: 0.1
+NuGetRepositories:
+- AAM-nuget-public
+git:
+  username: jgriendt1
+  email: joost.griendt@transamerica.com
+  credentialsId: svcgtsdcatpipeline-token
