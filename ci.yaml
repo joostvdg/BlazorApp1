@@ -5,4 +5,4 @@ NuGetRepositories:
 git:
   username: jgriendt1
   email: joost.griendt@transamerica.com
-  credentialsId: svcgtsdcatpipeline-token
+  credentialsId: jgriendt1-github
