@@ -137,7 +137,7 @@ pipeline {
         }
         stage ('Create Test Tag') {
             when { 
-                branch pattern: 'test-.*', comparator: "GLOB"
+                branch pattern: 'test-*', comparator: "GLOB"
             }
             environment {
                 BASE   = "${env.baseVersion}"
