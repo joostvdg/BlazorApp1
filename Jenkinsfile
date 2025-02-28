@@ -167,7 +167,7 @@ pipeline {
         stage ('Create Next Tag') {
             when { 
                 anyOf {
-                    branch pattern: 'test-.*', comparator: "GLOB"
+                    branch pattern: 'test-*', comparator: "GLOB"
                     branch pattern: "PR-\\d+", comparator: "REGEXP"
                     changeRequest()
                     branch 'main'
