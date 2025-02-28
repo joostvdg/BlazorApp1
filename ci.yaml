@@ -1,5 +1,11 @@
 name: blazorApp1
 baseVersion: 1.3
+NuGetPublish:
+  enabled: true
+  CredentialsId: jgriendt1-nuget
+  branch:
+    main: ''
+    dev: 'rc'
 NuGetRepositories:
 - AAM-nuget-public
 git:
