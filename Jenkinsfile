@@ -43,6 +43,7 @@ pipeline {
             steps {
                 script {
                     scmVars       = checkout scmGit(branches: [[name: '*/main']], extensions: [checkoutOption(1), cloneOption(depth: 1, noTags: false, reference: '', shallow: true)], userRemoteConfigs: [[credentialsId: 'svcgtsdcatpipeline-token', url: 'https://git.us.aegon.com/jgriendt1/BlazorApp1.git']])
+                    setEnv.setURLS()
                     env.gitUrl    = scmVars.GIT_URL
                     env.gitCommit = scmVars.GIT_COMMIT
                     echo "scmVars=${scmVars}"
@@ -53,29 +54,14 @@ pipeline {
             steps {
                 script {
                     props = readYaml file: "./ci.yaml"
-                    env.baseVersion      = props.baseVersion
-                    env.gitUser          = props.git.username
-                    env.gitEmail         = props.git.email
-                    env.gitCredentialsId = props.git.credentialsId
-                }
-            }
-        }
-        stage ('Restore') {
-            steps {
-                script {
-                    // write the NuGet.Config file with the Nexus Repositories configured
-                    // have to ensure we're on the correct agent, so have to write it at this time
-                    writeNugetConfig("ci.yaml", 'nexus-cred')
-                    container('dotnet') {
-                        sh 'dotnet restore'
-                    }
-                }
-            }
-        }
-        stage ('Build') {
-            steps {
-                container('dotnet') {
-                    sh 'dotnet build --no-restore'
+                    env.baseVersion                        = props.baseVersion
+                    env.gitUser                            = props.git.username
+                    env.gitEmail                           = props.git.email
+                    env.gitCredentialsId                   = props.git.credentialsId
+                    env.ArtifactPublish                    = props.ArtifactPublish
+                    env.ArtifactPublishCommandExtraOptions = props.ArtifactPublishCommandExtraOptions
+                    env.ArtifactPath                       = "${env.WORKSPACE}"
+                    env.ArtifactPublushRepo                = props.ArtifactPublushRepo
                 }
             }
         }
@@ -163,7 +149,27 @@ pipeline {
             }
 
         }
-
+        stage ('Restore') {
+            steps {
+                script {
+                    // write the NuGet.Config file with the Nexus Repositories configured
+                    // have to ensure we're on the correct agent, so have to write it at this time
+                    writeNugetConfig("ci.yaml", 'nexus-cred')
+                    container('dotnet') {
+                        sh 'dotnet restore'
+                    }
+                }
+            }
+        }
+        stage ('Build') {
+            steps {
+                container('dotnet') {
+                    sh """
+                    dotnet build --no-restore /p:PackageVersion=${env.nextTag} --no-restore -c Release
+                    """
+                }
+            }
+        }
         stage ('Create Next Tag') {
             when { 
                 anyOf {
@@ -196,6 +202,32 @@ pipeline {
                 echo "Pushing tag ${env.nextTag}"
                 git push origin "${env.nextTag}"
                 """
+            }
+        }
+
+        stage ('Make release package') {
+            when { expression { env.ArtifactPublish } }
+            steps {
+                container('dotnet') {
+                    sh """
+                    dotnet pack  -c Release --no-restore --no-build /p:PackageVersion=${env.nextTag} -o ${env.ArtifactPath}
+                    """
+                }
+
+            }
+        }
+        stage ('Publish Artifact') {
+            when { expression { env.ArtifactPublish } }
+            environment {
+                NUGET_API_KEY      = credentials('jgriendt1-nexus-nuget-token')
+                NUGET_PACKAGE_REPO = "${NEXUS_URL}/repository/${env.ArtifactPublushRepo}"
+            }
+            steps {
+                container('dotnet') {
+                    sh """
+                    dotnet nuget push ${env.ArtifactPath}/*.nupkg --source ${NUGET_PACKAGE_REPO}  --api-key ${NUGET_API_KEY}
+                    """
+                )
             }
         }
     }

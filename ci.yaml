@@ -10,6 +10,7 @@ NuGetRepositories:
 - AAM-nuget-public
 ArtifactPublish: true
 ArtifactPublushRepo: nuget-test
+
 ArtifactPublishCommandExtraOptions: ""
 git:
   username: jgriendt1
