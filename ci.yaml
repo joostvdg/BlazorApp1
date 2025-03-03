@@ -1,14 +1,18 @@
 name: blazorApp1
-baseVersion: 1.3
-NuGetPublish:
-  enabled: true
-  CredentialsId: jgriendt1-nuget
-  branch:
-    main: ''
-    dev: 'rc'
+baseVersion: 1.4
+# NuGetPublish:
+#   enabled: true
+#   CredentialsId: jgriendt1-nuget
+#   branch:
+#     main: ''
+#     dev: 'rc'
 NuGetRepositories:
 - AAM-nuget-public
+ArtifactPublish: true
+ArtifactPublushRepo: nuget-test
+ArtifactPublishCommandExtraOptions: ""
 git:
   username: jgriendt1
   email: joost.griendt@transamerica.com
   credentialsId: jgriendt1-github
+test: 1
