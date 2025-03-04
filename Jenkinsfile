@@ -210,6 +210,7 @@ pipeline {
             steps {
                 container('dotnet') {
                     sh """
+                    cat BlazorApp1/BlazorApp1.csproj
                     dotnet pack  -c Release --no-restore --no-build /p:PackageVersion=${env.nextTag} -o ${env.ArtifactPath}
                     """
                 }
