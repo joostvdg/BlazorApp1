@@ -227,7 +227,7 @@ pipeline {
                     sh """
                     dotnet nuget push ${env.ArtifactPath}/*.nupkg --source ${NUGET_PACKAGE_REPO}  --api-key ${NUGET_API_KEY}
                     """
-                )
+                }
             }
         }
     }
