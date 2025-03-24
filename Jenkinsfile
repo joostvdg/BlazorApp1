@@ -68,26 +68,10 @@ pipeline {
 
         stage ('Create Stable Next Tag') {
             when { branch 'main' }
-            environment {
-                BASE   = "${env.baseVersion}"
-                OUTPUT = 'next_tag.txt'
-            }
             steps {
-                container('git-next-tag') {
-                    sh '''
-                    git config --global safe.directory $(pwd)
-                    /work/git-next-tag \
-                        --baseTag ${BASE} \
-                        --path $(pwd) \
-                        --outputPath ${OUTPUT} \
-                        -vvv
-                    '''
-                }
                 script {
-                    env.nextTag = readFile("${OUTPUT}")
-                    sh 'rm ${OUTPUT}'
+                    version.nextStable("${env.baseVersion}")
                 }
-
             }
         }
         stage ('Create Pre-release Next Tag') {
@@ -97,54 +81,19 @@ pipeline {
                     changeRequest()
                 }
             }
-            environment {
-                BASE   = "${env.baseVersion}"
-                OUTPUT = 'next_tag.txt'
-            }
             steps {
-                container('git-next-tag') {
-                    sh '''
-                    git config --global safe.directory $(pwd)
-                    /work/git-next-tag \
-                        --baseTag ${BASE} \
-                        --path $(pwd) \
-                        --outputPath ${OUTPUT} \
-                        --preRelease \
-                        --suffix rc \
-                        -vvv
-                    '''
-                }
                 script {
-                    env.nextTag = readFile("${OUTPUT}")
-                    sh 'rm ${OUTPUT}'
+                    version.nextReleaseCandidate("${env.baseVersion}")
                 }
             }
-
         }
         stage ('Create Test Tag') {
             when { 
                 branch pattern: 'test-*', comparator: "GLOB"
             }
-            environment {
-                BASE   = "${env.baseVersion}"
-                OUTPUT = 'next_tag.txt'
-            }
             steps {
-                container('git-next-tag') {
-                    sh '''
-                    git config --global safe.directory $(pwd)
-                    /work/git-next-tag \
-                        --baseTag ${BASE} \
-                        --path $(pwd) \
-                        --outputPath ${OUTPUT} \
-                        --preRelease \
-                        --commit \
-                        -vvv
-                    '''
-                }
                 script {
-                    env.nextTag = readFile("${OUTPUT}")
-                    sh 'rm ${OUTPUT}'
+                    version.nextPreReleaseCommit("${env.baseVersion}")
                 }
             }
 
@@ -180,28 +129,9 @@ pipeline {
                 }
             }
             steps {
-
                 script {
-                    def url = env.gitUrl
-                    withCredentials([usernameColonPassword(credentialsId: env.gitCredentialsId, variable: 'GIT_CREDS')]) {
-                        def alteredUrl = url.replace("https://", "https://${env.GIT_CREDS}@")
-                        sh "git remote set-url origin ${alteredUrl}"
-                    }
+                    version.createGitTag(env.gitUrl, env.gitCredentialsId, env.gitUser, env.gitEmail, env.gitCommit, env.nextTag) 
                 }
-
-                sh """
-                echo "Setting git user to ${env.gitUser} <${env.gitEmail}>"
-                git config --global user.email ${env.gitUser}
-                git config --global user.name ${env.gitEmail}
-
-                git remote -vv
-
-                echo "Creating tag ${env.nextTag}"
-                git tag -a  "${env.nextTag}" -m "Version bump from CloudBees CI" "${env.gitCommit}"
-
-                echo "Pushing tag ${env.nextTag}"
-                git push origin "${env.nextTag}"
-                """
             }
         }
 
