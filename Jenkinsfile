@@ -5,7 +5,7 @@ spec:
     node: linux-agents
   containers:
   - name: dotnet
-    image: docker-proxy.nexus-ci.agtservices.aegon.io/bitnami/dotnet-sdk:9
+    image: bitnami/dotnet-sdk:9
     command:
     - cat
     tty: true
@@ -16,7 +16,7 @@ spec:
       limits:
         memory: "4096Mi"
   - name: git-next-tag
-    image: docker-proxy.nexus-ci.agtservices.aegon.io/git-next-tag:1.2.0-alpine
+    image: ghcr.io/joostvdg/git-next-tag:1.2.0-alpine
     command: ['cat']
     tty: true
     resources:
