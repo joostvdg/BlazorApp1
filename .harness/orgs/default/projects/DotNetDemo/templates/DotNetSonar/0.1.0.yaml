@@ -50,6 +50,16 @@ template:
                   echo "Solutionfile: ${SOLUTION_FILE}"
                   echo "Project name: ${PROJECT_NAME}"
                   echo "Sonar URL: ${SONAR_URL}"
+                  dotnet sonarscanner begin \
+                    /k:"${PROJECT_NAME}" \
+                    /d:sonar.host.url="${SONAR_URL}"  \
+                    /d:sonar.token="${SONAR_TOKEN}" \
+                    /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
+                    /d:sonar.qualitygate.wait=true \
+                    /d:sonar.qualitygate.timeout=300
+                  dotnet tool run dotnet-coverage collect dotnet test "${SOLUTION_FILE}"" --no-restore -f xml -o coverage.xml
+                  dotnet build "${SOLUTION_FILE}" --no-restore -p:Configuration=Release
+                  dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
                 envVariables:
                   SOLUTION_FILE: <+input>
                   PROJECT_NAME: <+input>
