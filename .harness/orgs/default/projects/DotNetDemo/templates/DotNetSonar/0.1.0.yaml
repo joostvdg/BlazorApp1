@@ -48,23 +48,14 @@ template:
                   dotnet --info
                   dotnet tool restore
                   echo "Solutionfile: ${SOLUTION_FILE}"
+                  echo "Project name: ${PROJECT_NAME}"
+                  echo "Sonar URL: ${SONAR_URL}"
+                envVariables:
+                  SOLUTION_FILE: <+input>
+                  PROJECT_NAME: <+input>
+                  SONAR_URL: <+input>
+                  SONAR_TOKEN: <+input>
                 resources:
                   limits:
                     memory: 3000Mi
                     cpu: 1500m
-    variables:
-      - name: SOLUTION_FILE
-        type: String
-        description: ""
-        required: true
-        value: test.sln
-      - name: SONAR_URL
-        type: String
-        description: ""
-        required: true
-        value: localhost:9000
-      - name: SONAR_TOKEN
-        type: String
-        description: ""
-        required: true
-        value: faketoken
