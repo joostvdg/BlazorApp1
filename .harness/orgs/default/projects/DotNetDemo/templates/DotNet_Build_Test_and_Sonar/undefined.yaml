@@ -13,15 +13,15 @@ template:
         dotnet --info
         dotnet tool restore
         dotnet sonarscanner begin \
-          /k:"BlazorApp1" \
-          /d:sonar.host.url="http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000"  \
-          /d:sonar.token="sqa_a3643d525a9de2559aece8fb6df8e501b7770645" \
+          /k:<+SONAR_PROJECT_NAME> \
+          /d:sonar.host.url=<+SONAR_URL> \
+          /d:sonar.token=<+SONAR_API_TOKEN> \
           /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
           /d:sonar.qualitygate.wait=true \
           /d:sonar.qualitygate.timeout=300
-        dotnet tool run dotnet-coverage collect dotnet test BlazorApp1.sln --no-restore -f xml -o coverage.xml
-        dotnet build BlazorApp1.sln --no-restore -p:Configuration=Release
-        dotnet sonarscanner end /d:sonar.token="sqa_a3643d525a9de2559aece8fb6df8e501b7770645"
+        dotnet tool run dotnet-coverage collect dotnet test <+SOLUTION_FILE> --no-restore -f xml -o coverage.xml
+        dotnet build <+SOLUTION_FILE> --no-restore -p:Configuration=Release
+        dotnet sonarscanner end /d:sonar.token=<+SONAR_API_TOKEN>
       resources:
         limits:
           memory: 3000Mi
