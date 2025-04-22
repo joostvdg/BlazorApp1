@@ -1,0 +1,70 @@
+template:
+  name: DotNetSonar
+  identifier: DotNetSonar
+  versionLabel: 0.1.0
+  type: Stage
+  projectIdentifier: DotNetDemo
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      caching:
+        enabled: true
+        override: true
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: k8s_local_kind
+          namespace: harness
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          os: Linux
+      execution:
+        steps:
+          - step:
+              type: Run
+              name: Prep
+              identifier: Prep
+              spec:
+                connectorRef: dockerhub_joostvdg
+                image: docker.io/caladreas/dotnet-nodejs-ci-builder:0.1.1
+                shell: Bash
+                command: |-
+                  dotnet new tool-manifest
+                  dotnet tool install dotnet-sonarscanner 
+                  dotnet tool install dotnet-coverage
+                  dotnet restore
+          - step:
+              type: Run
+              name: Sonar
+              identifier: Sonar
+              spec:
+                connectorRef: dockerhub_joostvdg
+                image: docker.io/caladreas/dotnet-nodejs-ci-builder:0.1.1
+                shell: Bash
+                command: |-
+                  dotnet --info
+                  dotnet tool restore
+                  echo "Solutionfile: ${SOLUTION_FILE}"
+                resources:
+                  limits:
+                    memory: 3000Mi
+                    cpu: 1500m
+    variables:
+      - name: SOLUTION_FILE
+        type: String
+        description: ""
+        required: true
+        value: test.sln
+      - name: SONAR_URL
+        type: String
+        description: ""
+        required: true
+        value: localhost:9000
+      - name: SONAR_TOKEN
+        type: String
+        description: ""
+        required: true
+        value: faketoken
