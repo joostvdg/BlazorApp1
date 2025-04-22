@@ -6,6 +6,10 @@ template:
   spec:
     type: Run
     spec:
+      parameters:
+        - name: SOLUTION_FILE
+          type: String
+          description: path to the DotNet Solution File
       connectorRef: dockerhub_joostvdg
       image: docker.io/caladreas/dotnet-nodejs-ci-builder:0.1.1
       shell: Bash
@@ -19,7 +23,7 @@ template:
           /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
           /d:sonar.qualitygate.wait=true \
           /d:sonar.qualitygate.timeout=300
-        dotnet tool run dotnet-coverage collect dotnet test <+SOLUTION_FILE> --no-restore -f xml -o coverage.xml
+        dotnet tool run dotnet-coverage collect dotnet test ${SOLUTION_FILE} --no-restore -f xml -o coverage.xml
         dotnet build <+SOLUTION_FILE> --no-restore -p:Configuration=Release
         dotnet sonarscanner end /d:sonar.token=<+SONAR_API_TOKEN>
       resources:
