@@ -1,0 +1,32 @@
+pipeline:
+  name: FromTemplate-01
+  identifier: FromTemplate01
+  projectIdentifier: DotNetDemo
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: GitHubJoostvdg
+        build: <+input>
+  stages:
+    - stage:
+        name: Sonar
+        identifier: Sonar
+        template:
+          templateRef: DotNetSonar
+          versionLabel: 0.1.0
+          templateInputs:
+            type: CI
+            spec:
+              execution:
+                steps:
+                  - step:
+                      identifier: Sonar
+                      type: Run
+                      spec:
+                        envVariables:
+                          SOLUTION_FILE: BlazorApp1.sln
+                          PROJECT_NAME: BlazorApp1
+                          SONAR_URL: ""
+                          SONAR_TOKEN: <+input>
