@@ -28,5 +28,5 @@ pipeline:
                         envVariables:
                           SOLUTION_FILE: BlazorApp1.sln
                           PROJECT_NAME: BlazorApp1
-                          SONAR_URL: ""
-                          SONAR_TOKEN: <+input>
+                          SONAR_URL: <+secrets.getValue("SONAR_URL")>
+                          SONAR_TOKEN: <+secrets.getValue("SOANR_TOKEN")>
