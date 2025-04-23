@@ -1,0 +1,32 @@
+pipeline:
+  name: BlazorApp1-01
+  identifier: BlazorApp101
+  tags: {}
+  template:
+    templateRef: DotNet01
+    versionLabel: v1
+    templateInputs:
+      properties:
+        ci:
+          codebase:
+            build: <+input>
+      stages:
+        - stage:
+            identifier: DotNetBuildTestAndSonar
+            template:
+              templateInputs:
+                type: CI
+                spec:
+                  execution:
+                    steps:
+                      - step:
+                          identifier: Sonar
+                          type: Run
+                          spec:
+                            envVariables:
+                              SOLUTION_FILE: BlazorApp1.sln
+                              PROJECT_NAME: BlazorApp1
+                              SONAR_URL: <+secrets.getValue("SONAR_URL")>
+                              SONAR_TOKEN: <+secrets.getValue("SONAR_TOKEN")>
+  projectIdentifier: DotNetDemo
+  orgIdentifier: default
