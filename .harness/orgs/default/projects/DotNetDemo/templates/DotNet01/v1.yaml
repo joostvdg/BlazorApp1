@@ -1,0 +1,36 @@
+template:
+  name: DotNet-01
+  identifier: DotNet01
+  versionLabel: v1
+  type: Pipeline
+  projectIdentifier: DotNetDemo
+  orgIdentifier: default
+  description: First generic DotNet Pipeline
+  tags: {}
+  spec:
+    properties:
+      ci:
+        codebase:
+          connectorRef: GitHubJoostvdg
+          build: <+input>
+    stages:
+      - stage:
+          name: DotNetBuildTestAndSonar
+          identifier: DotNetBuildTestAndSonar
+          template:
+            templateRef: DotNetSonar
+            versionLabel: 0.1.0
+            templateInputs:
+              type: CI
+              spec:
+                execution:
+                  steps:
+                    - step:
+                        identifier: Sonar
+                        type: Run
+                        spec:
+                          envVariables:
+                            SOLUTION_FILE: <+input>
+                            PROJECT_NAME: <+input>
+                            SONAR_URL: <+input>
+                            SONAR_TOKEN: <+input>
