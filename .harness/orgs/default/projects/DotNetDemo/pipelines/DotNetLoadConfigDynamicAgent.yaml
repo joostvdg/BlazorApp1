@@ -58,15 +58,15 @@ pipeline:
                       yq -V
                       cat ./ci.yaml | yq
                       props=$(cat ./ci.yaml)
-                      export BASE_VERSION=$(echo $props | yq '.baseVersion')
-                      export GIT_USER=$(echo $props | yq '.git.username')
-                      export GIT_EMAIL=$(echo $props | yq '.git.email')
-                      export GIT_CREDENTIALS_ID=$(echo $props | yq '.git.credentialsId')
+                      export BASE_VERSION=$(cat ./ci.yaml | yq '.baseVersion')
+                      export GIT_USER=$(cat ./ci.yaml | yq '.git.username')
+                      export GIT_EMAIL=$(cat ./ci.yaml | yq '.git.email')
+                      export GIT_CREDENTIALS_ID=$(cat ./ci.yaml | yq '.git.credentialsId')
                       export ARTIFACT_PUBLISH=$(echo $props | yq '.ArtifactPublish')
                       export ARTIFACT_PATH=${HARNESS_WORKSPACE}
-                      export ARTIFACT_PUBLISH_REPO=$(echo $props | yq '.ArtifactPublushRepo')
-                      export NUGET_REPOSITORIES=$(echo $props | yq '.NuGetRepositories[]')
-                      export DOTNET_SDK_VERSION=$(echo $props | yq '.DotNetSDKVersion')
+                      export ARTIFACT_PUBLISH_REPO=$(cat ./ci.yaml | yq '.ArtifactPublushRepo')
+                      export NUGET_REPOSITORIES=$(cat ./ci.yaml | yq '.NuGetRepositories[]')
+                      export DOTNET_SDK_VERSION=$(cat ./ci.yaml | yq '.DotNetSDKVersion')
                       echo "BASE_VERSION=$BASE_VERSION"
                       echo "GIT_USER=$GIT_USER"
                       echo "GIT_EMAIL=$GIT_EMAIL"
