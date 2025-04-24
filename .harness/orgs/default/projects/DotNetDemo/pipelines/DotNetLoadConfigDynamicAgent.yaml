@@ -1,0 +1,32 @@
+pipeline:
+  name: DotNetLoadConfigDynamicAgent
+  identifier: DotNetLoadConfigDynamicAgent
+  projectIdentifier: DotNetDemo
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Hello
+        identifier: Hello
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          caching:
+            enabled: true
+            override: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    shell: Sh
+                    command: echo "Hello World"
