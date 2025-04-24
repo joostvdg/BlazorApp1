@@ -1,5 +1,6 @@
 name: blazorApp1
 baseVersion: 1.4
+DotNetSDKVersion: 9
 # NuGetPublish:
 #   enabled: true
 #   CredentialsId: jgriendt1-nuget
