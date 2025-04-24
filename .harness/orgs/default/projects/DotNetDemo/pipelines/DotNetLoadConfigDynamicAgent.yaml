@@ -30,3 +30,159 @@ pipeline:
                   spec:
                     shell: Sh
                     command: echo "Hello World"
+    - stage:
+        name: Read Config File
+        identifier: Read_Config_File
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: read_properties
+                  identifier: read_properties
+                  spec:
+                    shell: Bash
+                    command: |-
+                      props=$(cat ./path/to/your/config.yaml)
+                      export BASE_VERSION=$(echo $props | jq -r '.baseVersion')
+                      export GIT_USER=$(echo $props | jq -r '.git.username')
+                      export GIT_EMAIL=$(echo $props | jq -r '.git.email')
+                      export GIT_CREDENTIALS_ID=$(echo $props | jq -r '.git.credentialsId')
+                      export ARTIFACT_PUBLISH=$(echo $props | jq -r '.ArtifactPublish')
+                      export ARTIFACT_PATH=${HARNESS_WORKSPACE}
+                      export ARTIFACT_PUBLISH_REPO=$(echo $props | jq -r '.ArtifactPublushRepo')
+                      export NUGET_REPOSITORIES=$(echo $props | jq -r '.NuGetRepositories[]')
+                      export DOTNET_SDK_VERSION=$(echo $props | jq -r '.DotNetSDKVersion')
+                      echo "BASE_VERSION=$BASE_VERSION"
+                      echo "GIT_USER=$GIT_USER"
+                      echo "GIT_EMAIL=$GIT_EMAIL"
+                      echo "GIT_CREDENTIALS_ID=$GIT_CREDENTIALS_ID"
+                      echo "ARTIFACT_PUBLISH=$ARTIFACT_PUBLISH"
+                      echo "ARTIFACT_PATH=$ARTIFACT_PATH"
+                      echo "ARTIFACT_PUBLISH_REPO=$ARTIFACT_PUBLISH_REPO"
+                      echo "NUGET_REPOSITORIES=$NUGET_REPOSITORIES"
+                      echo "DOTNET_SDK_VERSION=$DOTNET_SDK_VERSION"
+                    outputVariables:
+                      - name: BASE_VERSION
+                      - name: GIT_USER
+                      - name: GIT_EMAIL
+                      - name: GIT_CREDENTIALS_ID
+                      - name: ARTIFACT_PUBLISH
+                      - name: ARTIFACT_PATH
+                      - name: ARTIFACT_PUBLISH_REPO
+                      - name: NUGET_REPOSITORIES
+                      - name: DOTNET_SDK_VERSION
+    - stage:
+        name: Use Config
+        identifier: Use_Config
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          caching:
+            enabled: true
+            override: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: echo_config
+                  identifier: echo_config
+                  spec:
+                    shell: Bash
+                    command: |-
+                      echo "Using BASE_VERSION: $BASE_VERSION"
+                      echo "Using GIT_USER: $GIT_USER"
+                      echo "Using GIT_EMAIL: $GIT_EMAIL"
+                      echo "Using GIT_CREDENTIALS_ID: $GIT_CREDENTIALS_ID"
+                      echo "Using ARTIFACT_PUBLISH: $ARTIFACT_PUBLISH"
+                      echo "Using ARTIFACT_PATH: $ARTIFACT_PATH"
+                      echo "Using ARTIFACT_PUBLISH_REPO: $ARTIFACT_PUBLISH_REPO"
+                      echo "Using NUGET_REPOSITORIES: $NUGET_REPOSITORIES"
+                      echo "Using DOTNET_SDK_VERSION: $DOTNET_SDK_VERSION"
+    - stage:
+        name: Configure NuGet
+        identifier: Configure_NuGet
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: false
+          caching:
+            enabled: true
+            override: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: echo_nuget_repositories
+                  identifier: echo_nuget_repositories
+                  spec:
+                    shell: Bash
+                    command: |-
+                      for repo in $NUGET_REPOSITORIES; do
+                        echo "Configuring NuGet repository: $repo"
+                        # Add your logic to configure the NuGet repository here
+                      done
+    - stage:
+        name: DotNetBuild
+        identifier: DotNetBuild
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: k8s_local_kind
+              namespace: harness
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    connectorRef: dockerhub_joostvdg
+                    image: bitnami/dotnet-sdk:${DOTNET_SDK_VERSION}
+                    shell: Bash
+                    command: |-
+                      echo "Running with .NET SDK version ${DOTNET_SDK_VERSION}"
+                      dotnet --version
+                    resources:
+                      limits:
+                        memory: 3000Mi
+                        cpu: 1500m
+  properties:
+    ci:
+      codebase:
+        connectorRef: GitHubJoostvdg
+        build: <+input>
