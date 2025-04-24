@@ -55,6 +55,8 @@ pipeline:
                   spec:
                     shell: Bash
                     command: |-
+                      yq -V
+                      cat ./ci.yaml | yq
                       props=$(cat ./ci.yaml)
                       export BASE_VERSION=$(echo $props | yq '.baseVersion')
                       export GIT_USER=$(echo $props | yq '.git.username')
