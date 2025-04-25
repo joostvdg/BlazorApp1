@@ -34,3 +34,4 @@ template:
                             PROJECT_NAME: <+input>
                             SONAR_URL: <+input>
                             SONAR_TOKEN: <+input>
+                            SOMETHING: <+input>
